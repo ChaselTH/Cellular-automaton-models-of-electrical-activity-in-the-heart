@@ -1,6 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import math
+from cell import Cell
 
 plt.switch_backend('TKAgg')
 
@@ -10,6 +11,8 @@ class Grid:
     def __init__(self, size):
         plt.ion()
         self.grid = np.zeros((size, size))
+        # self.grid = np.array([[1,0,0],[0,0,1],[0,0,1]])
+        self.generate_cells()
         self.fig, self.ax = plt.subplots()
         self.draw()
 
@@ -30,3 +33,11 @@ class Grid:
             self.grid[_gy, _gx] = 0
         self.draw()
         plt.clf()
+
+    def generate_cells(self):
+        cell_array = []
+        raw, col = np.shape(self.grid)
+        for y in range(raw):
+            for x in range(col):
+                cell_array.append(Cell(x, y, self.grid[x, y]))
+

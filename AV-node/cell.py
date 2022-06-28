@@ -1,5 +1,7 @@
-class cells:
-    def __init__(self, state):
-        self.cell_state = state
+class Cell:
+    def __init__(self, x, y, state):
+        self.x = x
+        self.y = y
+        self.state = state
 
     # def run_rule(self):
