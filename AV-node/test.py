@@ -3,12 +3,8 @@ import matplotlib.pyplot as plt
 import time
 
 plt.ion()
-for i in range(200):
-
+for i in range(100):
+    plt.clf()
     plt.plot(range(i))
-    plt.draw()
-    time.sleep(0.5)
-    plt.ioff()
-    plt.show()
-
+    plt.pause(0.1)
 
