@@ -4,4 +4,10 @@ class Cell:
         self.y = y
         self.state = state
 
-    # def run_rule(self):
+    def next_state(self, state):
+        if state == 0:
+            return 2
+        elif state == 2:
+            return 1
+        elif state == 1:
+            return 0
