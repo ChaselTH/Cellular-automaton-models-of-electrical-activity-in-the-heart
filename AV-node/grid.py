@@ -29,22 +29,15 @@ class Grid:
         _gy = int(math.floor(event.ydata))
         current_state = self.grid[_gy, _gx]
         self.grid[_gy, _gx] = self.next_state(current_state)
-        # if current_state == 0:
-        #     self.grid[_gy, _gx] = 2
-        # elif current_state == 1:
-        #     self.grid[_gy, _gx] = 0
-        # elif current_state == 2:
-        #     self.grid[_gy, _gx] = 1
         self.generate_cells()
+        self.draw(self.grid, 0.1)
         while(not self.is_dead()):
             self.update()
-        # print(self.get_cell(10, 5).state)
-        self.draw(self.grid, 0)
 
     def generate_cells(self):
         self.cell_array = []
-        for x in range(self.col):
-            for y in range(self.raw):
+        for y in range(self.col):
+            for x in range(self.raw):
                 self.cell_array.append(Cell(x, y, self.grid[x, y]))
 
     def generate_grid(self):
@@ -98,12 +91,20 @@ class Grid:
         return True
 
     def update(self):
+        self.generate_cells()
         for cell in self.cell_array:
-            if cell.state != 0:
-                cell.state = self.next_state(cell.state)
+            if cell.state == 2 and not cell.is_changed:
+                cell.state = Cell.next_state(cell.state)
+                cell.is_changed = True
                 for around_cell in self.get_around_sell(cell):
                     if around_cell is not None:
-                        self.cell_array[self.col*around_cell.y+around_cell.x].state = self.next_state(around_cell.state)
+                        if around_cell.state == 0 and not around_cell.is_changed:
+                            around_cell.state = 2
+                            around_cell.is_changed = True
+                            # self.cell_array[self.col*around_cell.y+around_cell.x].state = 2
+            elif cell.state == 1 and not cell.is_changed:
+                cell.state = 0
+                cell.is_changed = True
         self.generate_grid()
         self.draw(self.grid, 0.1)
 

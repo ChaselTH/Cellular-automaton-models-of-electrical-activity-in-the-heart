@@ -3,11 +3,10 @@ class Cell:
         self.x = x
         self.y = y
         self.state = state
+        self.is_changed = False
 
-    def next_state(self, state):
-        if state == 0:
-            return 2
-        elif state == 2:
+    def next_state(state):
+        if state == 2:
             return 1
         elif state == 1:
             return 0
