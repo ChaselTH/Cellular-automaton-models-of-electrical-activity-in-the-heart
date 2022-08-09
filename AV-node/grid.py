@@ -1,112 +1,74 @@
 import numpy as np
 import matplotlib.pyplot as plt
-import math
-from cell import Cell
-
-plt.switch_backend('TKAgg')
 
 
 class Grid:
 
     def __init__(self, size):
-        self.cell_array = []
-        plt.ion()
-        self.grid = np.zeros((size, size))
-        self.raw, self.col = np.shape(self.grid)
-        # self.grid = np.array([[1,0,0],[0,0,1],[0,0,1]])
-        self.generate_cells()
-        self.fig, self.ax = plt.subplots()
-        self.draw(self.grid, 0)
+        self.size = size
 
-    def draw(self, sate_set, t):
-        self.ax.pcolor(sate_set, edgecolors='k', linewidth=0.5)
-        self.ax.set_aspect('equal')
-        self.fig.canvas.mpl_connect('button_press_event', self.onclick)
-        plt.pause(t)
+        self.x_sig = 13
+        self.y_sig = 50
 
-    def onclick(self, event):
-        _gx = int(math.floor(event.xdata))
-        _gy = int(math.floor(event.ydata))
-        current_state = self.grid[_gy, _gx]
-        self.grid[_gy, _gx] = self.next_state(current_state)
-        self.generate_cells()
-        self.draw(self.grid, 0.1)
-        while(not self.is_dead()):
-            self.update()
+        self.sig = []
+        self.sig.append([self.x_sig, self.y_sig])
 
-    def generate_cells(self):
-        self.cell_array = []
-        for y in range(self.col):
-            for x in range(self.raw):
-                self.cell_array.append(Cell(x, y, self.grid[x, y]))
+        self.fig = np.zeros((size, size))
+        for x in range(10, 16):
+            for y in range(47, 53):
+                self.fig[x, y] = 1
 
-    def generate_grid(self):
-        for cell in self.cell_array:
-            self.grid[cell.x, cell.y] = cell.state
+        for x in range(16, 70):
+            for y in range(48, 49):
+                self.fig[x, y] = 1
+            for y in range(51, 52):
+                self.fig[x, y] = 1
 
-    def get_cell(self, x, y):
-        return self.cell_array[self.col*y+x]
+        for x in range(69, 70):
+            for y in range(30, 48):
+                self.fig[x, y] = 1
+            for y in range(52, 70):
+                self.fig[x, y] = 1
 
-    def is_in_grid(self, x, y):
-        if 0 <= x < self.col and 0 <= y < self.raw:
-            return True
-        else:
-            return False
+        for x in range(35, 70):
+            for y in range(30, 31):
+                self.fig[x, y] = 1
+            for y in range(69, 70):
+                self.fig[x, y] = 1
 
-    def get_up_cell(self, cell):
-        if self.is_in_grid(cell.x, cell.y + 1):
-            return self.get_cell(cell.x, cell.y + 1)
+        self.fig[self.sig[0][0], self.sig[0][1]] = 2
+        plt.matshow(self.fig, fignum=0)
+        # plt.show()
+        self.update()
 
-    def get_down_cell(self, cell):
-        if self.is_in_grid(cell.x, cell.y - 1):
-            return self.get_cell(cell.x, cell.y - 1)
+    def change_cell(self, x, y, want_state, change_state):
+        if self.fig[x, y] == want_state:
+            self.fig[x, y] = change_state
 
-    def get_left_cell(self, cell):
-        if self.is_in_grid(cell.x - 1, cell.y):
-            return self.get_cell(cell.x - 1, cell.y)
+    def sig_move(self, sig):
+        if self.fig[sig[0] - 1, sig[1]] == 1:
+            self.fig[sig[0] - 1, sig[1]] = 2
+            self.sig.append([sig[0] - 1, sig[1]])
 
-    def get_right_cell(self, cell):
-        if self.is_in_grid(cell.x + 1, cell.y):
-            return self.get_cell(cell.x + 1, cell.y)
+        if self.fig[sig[0], sig[1] - 1] == 1:
+            self.fig[sig[0], sig[1] - 1] = 2
+            self.sig.append([sig[0], sig[1] - 1])
 
-    def get_around_sell(self, cell):
-        cell_list = [self.get_left_cell(cell),
-                     self.get_right_cell(cell),
-                     self.get_up_cell(cell),
-                     self.get_down_cell(cell)]
-        return cell_list
+        if self.fig[sig[0], sig[1] + 1] == 1:
+            self.fig[sig[0], sig[1] + 1] = 2
+            self.sig.append([sig[0], sig[1] + 1])
 
-    def next_state(self, state):
-        if state == 0:
-            return 2
-        elif state == 2:
-            return 1
-        elif state == 1:
-            return 0
+        if self.fig[sig[0] + 1, sig[1]] == 1:
+            self.fig[sig[0] + 1, sig[1]] = 2
+            self.sig.append([sig[0] + 1, sig[1]])
 
-    def is_dead(self):
-        for cell in self.cell_array:
-            if cell.state != 0:
-                return False
-        return True
+        self.sig.remove(sig)
 
     def update(self):
-        self.generate_cells()
-        for cell in self.cell_array:
-            if cell.state == 2 and not cell.is_changed:
-                cell.state = Cell.next_state(cell.state)
-                cell.is_changed = True
-                for around_cell in self.get_around_sell(cell):
-                    if around_cell is not None:
-                        if around_cell.state == 0 and not around_cell.is_changed:
-                            around_cell.state = 2
-                            around_cell.is_changed = True
-                            # self.cell_array[self.col*around_cell.y+around_cell.x].state = 2
-            elif cell.state == 1 and not cell.is_changed:
-                cell.state = 0
-                cell.is_changed = True
-        self.generate_grid()
-        self.draw(self.grid, 0.1)
+        for t in range(10000):
+            for sig in self.sig:
+                self.sig_move(sig)
 
-
-
+            plt.clf()
+            plt.matshow(self.fig, fignum=0)
+            plt.pause(0.001)
