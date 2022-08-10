@@ -3,4 +3,4 @@ from grid import *
 
 
 if __name__ == '__main__':
-    Grid(100)
+    Grid()

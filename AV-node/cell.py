@@ -5,8 +5,8 @@ class Cell:
         self.state = state
         self.is_changed = False
 
-    def next_state(state):
-        if state == 2:
-            return 1
-        elif state == 1:
-            return 0
+    def next_state(self):
+        if self.state == 5:
+            self.state = 2
+        elif self.state == 2:
+            self.state = 1
