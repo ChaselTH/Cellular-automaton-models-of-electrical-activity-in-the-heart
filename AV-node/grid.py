@@ -34,12 +34,10 @@ class Grid:
                 self.coordinate_box.append((x, y))
 
         for coordinate in self.coordinate_box:
-            self.fig[coordinate[0], coordinate[1]] = 1
+            self.fig[coordinate[0], coordinate[1]] = 20
 
-        self.fig[15, 50] = 5
-        self.fig[15, 49] = 5
-        self.fig[15, 48] = 5
-        self.fig[15, 51] = 5
+        for y in range(47, 53):
+            self.fig[15, y] = 15
 
         self.update_cell()
 
@@ -47,13 +45,9 @@ class Grid:
         # plt.show()
         self.update()
 
-    def change_cell(self, x, y, want_state, change_state):
-        if self.fig[x, y] == want_state:
-            self.fig[x, y] = change_state
-
     def update(self):
         for t in range(10000):
-            self.spread(12)
+            self.spread(3, 0)
             plt.clf()
             plt.matshow(self.fig, fignum=0)
             plt.pause(0.001)
@@ -68,25 +62,20 @@ class Grid:
             self.fig[cell.x, cell.y] = cell.state
 
     def calculate_state(self, x, y):
-        return self.fig[x+1, y]\
-                + self.fig[x, y+1]\
-                + self.fig[x-1, y]\
-                + self.fig[x, y-1]\
-                + self.fig[x+1, y+1]\
-                + self.fig[x+1, y-1]\
-                + self.fig[x-1, y+1]\
-                + self.fig[x-1, y-1]
+        state_area = self.fig[x - 2: x + 3, y - 2: y + 3] % 2
+        state = state_area.sum()
 
-    def spread(self, threshold):
+        return state
+
+    def spread(self, slow, fast):
         for cell in self.cell_box:
-            if cell.state == 1:
+            if cell.state == 20:
                 state = self.calculate_state(cell.x, cell.y)
-                print(state)
-                if state > threshold:
-                    cell.state = 5
+                if cell.y < 50 and state > slow:
+                    cell.state = 15
+                elif cell.y >= 50 and state > fast:
+                    cell.state = 15
             else:
                 cell.next_state()
         self.update_fig()
         self.update_cell()
-
-

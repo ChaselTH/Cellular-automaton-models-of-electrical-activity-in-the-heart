@@ -6,7 +6,9 @@ class Cell:
         self.is_changed = False
 
     def next_state(self):
-        if self.state == 5:
-            self.state = 2
-        elif self.state == 2:
-            self.state = 1
+        if self.state == 15:
+            self.state = 12
+        elif self.state == 12:
+            self.state = 8
+        elif self.state == 8:
+            self.state = 20
