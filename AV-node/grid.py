@@ -53,8 +53,11 @@ class Grid:
         normal_button = Button(normal_button, 'normal')
         normal_button.on_clicked(self.update)
 
-        plt.show()
+        AVNRT_button = plt.axes([0.3, 0.05, 0.1, 0.075])
+        AVNRT_button = Button(AVNRT_button, 'AVNRT')
+        # AVNRT_button.on_clicked(self.AVNRT_spread)
 
+        plt.show()
 
         # self.update()
 
@@ -65,13 +68,16 @@ class Grid:
         self.update_cell()
         for t in range(10000):
             if break_next:
-                plt.figure()
+                self.__init__()
                 break
             if self.is_cool():
                 break_next = True
-            self.spread(5, 2)
+            self.spread(6, 1)
             plt.clf()
             plt.matshow(self.fig, fignum=0)
+            normal_button = plt.axes([0.1, 0.05, 0.1, 0.075])
+            normal_button = Button(normal_button, 'normal')
+            normal_button.on_clicked(self.update)
             plt.pause(0.001)
 
     def is_cool(self):
