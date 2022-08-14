@@ -53,12 +53,12 @@ class Grid:
 
         plt.subplots_adjust(bottom=0.2)
 
-        normal_button = plt.axes([0.1, 0.05, 0.1, 0.075])
-        normal_button = Button(normal_button, 'normal')
+        normal_button = plt.axes([0.1, 0.05, 0.2, 0.075])
+        normal_button = Button(normal_button, 'slow-fast AVNRT')
         normal_button.on_clicked(self.update)
 
-        AVNRT_button = plt.axes([0.3, 0.05, 0.1, 0.075])
-        AVNRT_button = Button(AVNRT_button, 'AVNRT')
+        AVNRT_button = plt.axes([0.5, 0.05, 0.2, 0.075])
+        AVNRT_button = Button(AVNRT_button, 'fast-slow AVNRT')
         # AVNRT_button.on_clicked(self.AVNRT_spread)
 
         print(222)
@@ -74,7 +74,7 @@ class Grid:
 
         for t in range(10000):
             delay += 1
-            if delay == 15:
+            if delay == 25:
                 self.make_pace()
                 delay = 0
             # if break_next:
@@ -82,12 +82,9 @@ class Grid:
             #     break
             # if self.is_cool():
             #     break_next = True
-            self.spread(5, 1)
+            self.spread(7, 1)
             plt.clf()
             plt.matshow(self.fig, fignum=0)
-            normal_button = plt.axes([0.1, 0.05, 0.1, 0.075])
-            normal_button = Button(normal_button, 'normal')
-            normal_button.on_clicked(self.update)
             plt.pause(0.001)
 
     def make_pace(self):
@@ -113,19 +110,19 @@ class Grid:
             self.fig[cell.x, cell.y] = cell.state
 
     def calculate_state(self, x, y):
-        state_area = self.fig[x - 3: x + 4, y - 3: y + 4] % 2
+        state_area = self.fig[x - 4: x + 5, y - 4: y + 5] % 2
         state = state_area.sum()
 
         return state
 
     def spread(self, slow, fast):
         for cell in self.cell_box:
-            if cell.state >= 92:
+            if cell.state == 100:
                 state = self.calculate_state(cell.x, cell.y)
                 if cell.y < 50:
                     if state >= slow:
                         cell.state = self.activate
-                elif cell.y >= 50:
+                else:
                     if state >= fast:
                         cell.state = self.activate
             else:

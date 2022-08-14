@@ -16,21 +16,25 @@ class Cell:
 
     def next_fast(self):
         if self.state == 33:
-            self.state = 36
-        elif self.state == 90:
+            self.state = 40
+        elif self.state == 72:
             self.state = 100
         elif self.state != 100:
             if self.wait == 2:
-                self.state = self.state + 2
+                self.state = self.state + 4
                 self.wait = 0
             else:
                 self.wait += 1
 
     def next_slow(self):
-        if self.state == 33:
-            self.state = 52
-        elif self.state == 72:
-            self.state = 100
-        elif self.state != 100:
-            self.state = self.state + 16
+        if self.wait == 1:
+            if self.state == 33:
+                self.state = 56
+            elif self.state == 72:
+                self.state = 100
+            elif self.state != 100:
+                self.state = self.state + 16
+            self.wait = 0
+        else:
+            self.wait += 1
 
