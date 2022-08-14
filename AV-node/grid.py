@@ -10,25 +10,29 @@ class Grid:
     def __init__(self):
         self.cell_box = []
         self.coordinate_box = []
-
         self.size = 100
+        self.fig = np.zeros((100, 100))
+        self.activate = 33
 
-        # build the structure of the AV node
+        self.reset()
+
+    def reset(self):
+        plt.clf()
         self.fig = np.zeros((100, 100))
 
-        for y in range(47, 53):
+        for y in range(46, 54):
             for x in range(15, 20):
                 self.coordinate_box.append((x, y))
-            for x in range(60, 65):
+            for x in range(80, 85):
                 self.coordinate_box.append((x, y))
 
         for y in range(25, 75):
             for x in range(20, 30):
                 self.coordinate_box.append((x, y))
-            for x in range(50, 60):
+            for x in range(70, 80):
                 self.coordinate_box.append((x, y))
 
-        for x in range(25, 60):
+        for x in range(30, 70):
             for y in range(25, 35):
                 self.coordinate_box.append((x, y))
             for y in range(65, 75):
@@ -41,7 +45,7 @@ class Grid:
         #         self.coordinate_box.append((x, y))
 
         for coordinate in self.coordinate_box:
-            self.fig[coordinate[0], coordinate[1]] = 20
+            self.fig[coordinate[0], coordinate[1]] = 100
 
         self.update_cell()
 
@@ -57,22 +61,28 @@ class Grid:
         AVNRT_button = Button(AVNRT_button, 'AVNRT')
         # AVNRT_button.on_clicked(self.AVNRT_spread)
 
+        print(222)
+
         plt.show()
 
         # self.update()
 
     def update(self, event):
         break_next = False
-        for y in range(47, 53):
-            self.fig[15, y] = 15
-        self.update_cell()
+        self.make_pace()
+        delay = 0
+
         for t in range(10000):
-            if break_next:
-                self.__init__()
-                break
-            if self.is_cool():
-                break_next = True
-            self.spread(6, 1)
+            delay += 1
+            if delay == 15:
+                self.make_pace()
+                delay = 0
+            # if break_next:
+            #     self.reset()
+            #     break
+            # if self.is_cool():
+            #     break_next = True
+            self.spread(5, 1)
             plt.clf()
             plt.matshow(self.fig, fignum=0)
             normal_button = plt.axes([0.1, 0.05, 0.1, 0.075])
@@ -80,10 +90,15 @@ class Grid:
             normal_button.on_clicked(self.update)
             plt.pause(0.001)
 
+    def make_pace(self):
+        for y in range(46, 54):
+            self.fig[15, y] = self.activate
+        self.update_cell()
+
     def is_cool(self):
         cool = True
         for cell in self.cell_box:
-            if cell.state != 20:
+            if cell.state != 100:
                 cool = False
                 break
         return cool
@@ -105,13 +120,18 @@ class Grid:
 
     def spread(self, slow, fast):
         for cell in self.cell_box:
-            if cell.state == 20:
+            if cell.state >= 92:
                 state = self.calculate_state(cell.x, cell.y)
-                if cell.y < 50 and state >= slow:
-                    cell.state = 15
-                elif cell.y >= 50 and state >= fast:
-                    cell.state = 15
+                if cell.y < 50:
+                    if state >= slow:
+                        cell.state = self.activate
+                elif cell.y >= 50:
+                    if state >= fast:
+                        cell.state = self.activate
             else:
-                cell.next_state()
+                if cell.y < 50:
+                    cell.next_slow()
+                else:
+                    cell.next_fast()
         self.update_fig()
-        self.update_cell()
+        # self.update_cell()
