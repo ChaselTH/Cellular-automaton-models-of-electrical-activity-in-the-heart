@@ -8,7 +8,7 @@ class Cell:
 
     def next_fast(self):
         if self.state == 33:
-            self.state = 44
+            self.state = 40
         elif self.state == 76:
             self.state = 100
         elif self.state != 100:

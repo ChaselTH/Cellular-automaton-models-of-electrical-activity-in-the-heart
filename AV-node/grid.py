@@ -1,3 +1,5 @@
+import random
+
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.widgets import Button
@@ -71,12 +73,14 @@ class Grid:
         break_next = False
         self.make_pace()
         delay = 0
+        # delay_threshold = random.randint(25, 40)
 
         for t in range(10000):
             delay += 1
-            if delay == 30:
+            if delay == 25:
                 self.make_pace()
-                delay = 0
+                # delay = 0
+                # delay_threshold = random.randint(25, 40)
             # if break_next:
             #     self.reset()
             #     break
