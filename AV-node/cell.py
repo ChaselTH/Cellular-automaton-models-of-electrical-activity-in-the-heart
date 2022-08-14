@@ -6,22 +6,15 @@ class Cell:
         self.is_changed = False
         self.wait = 0
 
-    def next_state(self):
-        if self.state == 15:
-            self.state = 12
-        elif self.state == 12:
-            self.state = 8
-        elif self.state == 8:
-            self.state = 20
-
     def next_fast(self):
         if self.state == 33:
-            self.state = 40
-        elif self.state == 72:
+            self.state = 44
+        elif self.state == 76:
             self.state = 100
         elif self.state != 100:
+            print(self.wait)
             if self.wait == 2:
-                self.state = self.state + 4
+                self.state += 4
                 self.wait = 0
             else:
                 self.wait += 1
@@ -37,4 +30,3 @@ class Cell:
             self.wait = 0
         else:
             self.wait += 1
-

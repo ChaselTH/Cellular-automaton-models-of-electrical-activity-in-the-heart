@@ -74,7 +74,7 @@ class Grid:
 
         for t in range(10000):
             delay += 1
-            if delay == 25:
+            if delay == 30:
                 self.make_pace()
                 delay = 0
             # if break_next:
@@ -117,7 +117,7 @@ class Grid:
 
     def spread(self, slow, fast):
         for cell in self.cell_box:
-            if cell.state == 100:
+            if cell.state > 76:
                 state = self.calculate_state(cell.x, cell.y)
                 if cell.y < 50:
                     if state >= slow:
