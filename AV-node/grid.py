@@ -22,23 +22,28 @@ class Grid:
         plt.clf()
         self.fig = np.zeros((100, 100))
 
-        for y in range(46, 54):
-            for x in range(15, 20):
+        for y in range(45, 55):
+            for x in range(5, 20):
                 self.coordinate_box.append((x, y))
-            for x in range(80, 85):
-                self.coordinate_box.append((x, y))
-
-        for y in range(25, 75):
-            for x in range(20, 30):
-                self.coordinate_box.append((x, y))
-            for x in range(70, 80):
+            for x in range(80, 95):
                 self.coordinate_box.append((x, y))
 
-        for x in range(30, 70):
-            for y in range(25, 35):
-                self.coordinate_box.append((x, y))
-            for y in range(65, 75):
-                self.coordinate_box.append((x, y))
+        # for y in range(25, 75):
+        #     for x in range(20, 30):
+        #         self.coordinate_box.append((x, y))
+        #     for x in range(70, 80):
+        #         self.coordinate_box.append((x, y))
+
+        for y in range(0, 100):
+            for x in range(0, 100):
+                if 20 <= ((x - 50)**2 + (y - 50)**2)**0.5 < 35:
+                    self.coordinate_box.append((x, y))
+
+        # for x in range(30, 70):
+        #     for y in range(25, 35):
+        #         self.coordinate_box.append((x, y))
+        #     for y in range(65, 75):
+        #         self.coordinate_box.append((x, y))
 
         # for x in range(65, 90):
         #     for y in range(45, 48):
@@ -86,14 +91,14 @@ class Grid:
             #     break
             # if self.is_cool():
             #     break_next = True
-            self.spread(7, 1)
+            self.spread(7, 3)
             plt.clf()
             plt.matshow(self.fig, fignum=0)
             plt.pause(0.001)
 
     def make_pace(self):
-        for y in range(46, 54):
-            self.fig[15, y] = self.activate
+        for y in range(45, 55):
+            self.fig[5, y] = self.activate
         self.update_cell()
 
     def is_cool(self):
