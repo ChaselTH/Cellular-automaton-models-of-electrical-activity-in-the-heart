@@ -1,26 +1,47 @@
 import random
+import time
 
 import numpy as np
 import matplotlib.pyplot as plt
+import matplotlib
 from matplotlib.widgets import Button
-
+from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
+from PyQt5 import QtCore, QtWidgets, QtGui
+from PyQt5.QtWidgets import *
 from cell import Cell
 
+matplotlib.use('Qt5Agg')
 
-class Grid:
+
+class Grid(QtWidgets.QDialog):
 
     def __init__(self):
+        super().__init__()
+
         self.cell_box = []
         self.coordinate_box = []
         self.size = 100
-        self.fig = np.zeros((100, 100))
+        self.grid = np.zeros((100, 100))
         self.activate = 33
+
+        self.fig = plt.figure()
+        self.canvas = FigureCanvas(self.fig)
+
+        self.button_plot = QtWidgets.QPushButton("123123")
+
+        layout = QtWidgets.QVBoxLayout()
+        layout.addWidget(self.canvas)
+        layout.addWidget(self.button_plot)
+
+        self.button_plot.clicked.connect(self.update)
+
+        self.setLayout(layout)
 
         self.reset()
 
     def reset(self):
         plt.clf()
-        self.fig = np.zeros((100, 100))
+        self.grid = np.zeros((100, 100))
 
         for y in range(45, 55):
             for x in range(5, 20):
@@ -28,77 +49,44 @@ class Grid:
             for x in range(80, 95):
                 self.coordinate_box.append((x, y))
 
-        # for y in range(25, 75):
-        #     for x in range(20, 30):
-        #         self.coordinate_box.append((x, y))
-        #     for x in range(70, 80):
-        #         self.coordinate_box.append((x, y))
-
         for y in range(0, 100):
             for x in range(0, 100):
-                if 20 <= ((x - 50)**2 + (y - 50)**2)**0.5 < 35:
+                if 20 <= ((x - 49)**2 + (y - 50)**2)**0.5 < 35:
                     self.coordinate_box.append((x, y))
 
-        # for x in range(30, 70):
-        #     for y in range(25, 35):
-        #         self.coordinate_box.append((x, y))
-        #     for y in range(65, 75):
-        #         self.coordinate_box.append((x, y))
-
-        # for x in range(65, 90):
-        #     for y in range(45, 48):
-        #         self.coordinate_box.append((x, y))
-        #     for y in range(52, 55):
-        #         self.coordinate_box.append((x, y))
-
         for coordinate in self.coordinate_box:
-            self.fig[coordinate[0], coordinate[1]] = 100
+            self.grid[coordinate[0], coordinate[1]] = 100
 
         self.update_cell()
 
-        plt.matshow(self.fig, fignum=0)
-
-        plt.subplots_adjust(bottom=0.2)
-
-        normal_button = plt.axes([0.1, 0.05, 0.2, 0.075])
-        normal_button = Button(normal_button, 'slow-fast AVNRT')
-        normal_button.on_clicked(self.update)
-
-        AVNRT_button = plt.axes([0.5, 0.05, 0.2, 0.075])
-        AVNRT_button = Button(AVNRT_button, 'fast-slow AVNRT')
-        # AVNRT_button.on_clicked(self.AVNRT_spread)
+        plt.matshow(self.grid, fignum=0)
 
         print(222)
 
-        plt.show()
-
-        # self.update()
+        self.canvas.draw()
 
     def update(self, event):
-        break_next = False
         self.make_pace()
         delay = 0
-        # delay_threshold = random.randint(25, 40)
 
         for t in range(10000):
             delay += 1
             if delay == 25:
                 self.make_pace()
-                # delay = 0
-                # delay_threshold = random.randint(25, 40)
-            # if break_next:
-            #     self.reset()
-            #     break
-            # if self.is_cool():
-            #     break_next = True
             self.spread(7, 3)
             plt.clf()
-            plt.matshow(self.fig, fignum=0)
-            plt.pause(0.001)
+            plt.matshow(self.grid, fignum=0)
+            self.canvas.draw()
+            plt.pause(0.01)
+
+    def opposite_pace(self, event):
+        for y in range(45, 55):
+            self.grid[94, y] = self.activate
+        self.update_cell()
 
     def make_pace(self):
         for y in range(45, 55):
-            self.fig[5, y] = self.activate
+            self.grid[5, y] = self.activate
         self.update_cell()
 
     def is_cool(self):
@@ -112,14 +100,14 @@ class Grid:
     def update_cell(self):
         self.cell_box.clear()
         for c in self.coordinate_box:
-            self.cell_box.append(Cell(c[0], c[1], self.fig[c[0], c[1]]))
+            self.cell_box.append(Cell(c[0], c[1], self.grid[c[0], c[1]]))
 
-    def update_fig(self):
+    def update_grid(self):
         for cell in self.cell_box:
-            self.fig[cell.x, cell.y] = cell.state
+            self.grid[cell.x, cell.y] = cell.state
 
     def calculate_state(self, x, y):
-        state_area = self.fig[x - 4: x + 5, y - 4: y + 5] % 2
+        state_area = self.grid[x - 4: x + 5, y - 4: y + 5] % 2
         state = state_area.sum()
 
         return state
@@ -139,5 +127,5 @@ class Grid:
                     cell.next_slow()
                 else:
                     cell.next_fast()
-        self.update_fig()
+        self.update_grid()
         # self.update_cell()
