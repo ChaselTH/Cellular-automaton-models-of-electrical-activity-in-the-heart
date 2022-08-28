@@ -30,13 +30,19 @@ class Grid(QtWidgets.QDialog):
         self.canvas = FigureCanvas(self.fig)
 
         self.s_f_avnrt = QtWidgets.QPushButton("slow-fast AVNRT")
+        self.f_s_avnrt = QtWidgets.QPushButton("fast-slow AVNRT")
         self.start = QtWidgets.QPushButton("Start")
-        self.pace_btn = QtWidgets.QPushButton("Activate")
+        self.pace_btn = QtWidgets.QPushButton("Send Impulse")
+        self.counter_pace_btn = QtWidgets.QPushButton("Counter Impulse")
 
-        self.beat_frq = QLabel("Frequency Lv")
-        self.set_freq = QSpinBox()
-        self.set_freq.setRange(1, 5)
+        self.set_freq = QSlider()
+        # self.set_freq.setSingleStep(2)
+        self.set_freq.setRange(1, 100)
+        self.set_freq.setValue(50)
         self.set_freq.valueChanged.connect(self.freq_change)
+        self.beat_frq = QLabel("Frequency Lv: " + str(self.set_freq.value()))
+
+        self.stop_btn = QtWidgets.QPushButton("Stop")
 
         self.freq = self.set_freq.value() * 10
 
@@ -46,19 +52,20 @@ class Grid(QtWidgets.QDialog):
 
         hlayout.addWidget(self.canvas)
         glayout.addWidget(self.start, 0, 0)
-        glayout.addWidget(self.beat_frq, 0, 1)
-        glayout.addWidget(self.set_freq, 0, 2)
-        glayout.addWidget(self.s_f_avnrt, 1, 0)
+        glayout.addWidget(self.stop_btn, 0, 1)
+        glayout.addWidget(self.beat_frq, 1, 0)
+        glayout.addWidget(self.set_freq, 1, 1)
+        glayout.addWidget(self.s_f_avnrt, 2, 0)
+        glayout.addWidget(self.f_s_avnrt, 2, 1)
         glayout.addWidget(self.pace_btn, 3, 0)
-
-        # layout.addWidget(self.canvas, 0)
-        # layout.addWidget(self.s_f_avnrt, 0)
-        # layout.addWidget(self.pace_btn, 1)
-        # layout.addWidget(self.beat_frq, 2)
+        glayout.addWidget(self.counter_pace_btn, 3, 1)
 
         self.s_f_avnrt.clicked.connect(self.slow_fast)
+        self.f_s_avnrt.clicked.connect(self.fast_slow)
         self.pace_btn.clicked.connect(self.beat)
         self.start.clicked.connect(self.start_beat)
+        self.stop_btn.clicked.connect(self.stop)
+        self.counter_pace_btn.clicked.connect(self.counter_beat)
 
         hwg = QWidget()
         vwg = QWidget()
@@ -70,11 +77,6 @@ class Grid(QtWidgets.QDialog):
         wlayout.addWidget(vwg)
 
         self.setLayout(wlayout)
-
-        # self.setLayout(hlayout)
-        # self.setLayout(vlayout)
-        # wl.addLayout(hlayout)
-        # wl.addLayout(vlayout)
 
         self.reset()
 
@@ -106,24 +108,36 @@ class Grid(QtWidgets.QDialog):
 
         self.canvas.draw()
 
+    def stop(self):
+        self.freq = 100000000
+
     def freq_change(self, event):
-        self.freq = self.set_freq.value() * 10
+        self.freq = int(self.set_freq.value()/100 * 30 + 20)
+        self.beat_frq.setText("Frequency LV: " + str(self.set_freq.value()))
 
     def start_beat(self, event):
-        self.update(True)
+        self.freq = int(self.set_freq.value()/100 * 30 + 20)
+        self.update(True, False)
 
     def slow_fast(self, event):
         self.freq = 25
-        self.update(False)
+        self.update(False, False)
 
-    def update(self, reset):
+    def fast_slow(self, event):
+        self.freq = 40
+        self.update(False, True)
+
+    def update(self, reset, counter):
         self.make_pace()
 
         delay = 0
         for t in range(10000):
             delay += 1
             if delay == self.freq:
-                self.make_pace()
+                if counter:
+                    self.counter_pace()
+                else:
+                    self.make_pace()
                 if reset:
                     delay = 0
             self.spread(7, 3)
@@ -142,9 +156,17 @@ class Grid(QtWidgets.QDialog):
     def beat(self, event):
         self.make_pace()
 
+    def counter_beat(self, event):
+        self.counter_pace()
+
     def make_pace(self):
         for y in range(45, 55):
             self.grid[5, y] = self.activate
+        self.update_cell()
+
+    def counter_pace(self):
+        for y in range(45, 55):
+            self.grid[94, y] = self.activate
         self.update_cell()
 
     def is_cool(self):
