@@ -7,6 +7,7 @@ import matplotlib
 from matplotlib.widgets import Button
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from PyQt5 import QtCore, QtWidgets, QtGui
+from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import *
 from cell import Cell
 
@@ -17,6 +18,7 @@ class Grid(QtWidgets.QDialog):
 
     def __init__(self):
         super().__init__()
+        self.resize(800, 600)
 
         self.cell_box = []
         self.coordinate_box = []
@@ -27,15 +29,52 @@ class Grid(QtWidgets.QDialog):
         self.fig = plt.figure()
         self.canvas = FigureCanvas(self.fig)
 
-        self.button_plot = QtWidgets.QPushButton("123123")
+        self.s_f_avnrt = QtWidgets.QPushButton("slow-fast AVNRT")
+        self.start = QtWidgets.QPushButton("Start")
+        self.pace_btn = QtWidgets.QPushButton("Activate")
 
-        layout = QtWidgets.QVBoxLayout()
-        layout.addWidget(self.canvas)
-        layout.addWidget(self.button_plot)
+        self.beat_frq = QLabel("Frequency Lv")
+        self.set_freq = QSpinBox()
+        self.set_freq.setRange(1, 5)
+        self.set_freq.valueChanged.connect(self.freq_change)
 
-        self.button_plot.clicked.connect(self.update)
+        self.freq = self.set_freq.value() * 10
 
-        self.setLayout(layout)
+        wlayout = QHBoxLayout()
+        hlayout = QHBoxLayout()
+        glayout = QGridLayout()
+
+        hlayout.addWidget(self.canvas)
+        glayout.addWidget(self.start, 0, 0)
+        glayout.addWidget(self.beat_frq, 0, 1)
+        glayout.addWidget(self.set_freq, 0, 2)
+        glayout.addWidget(self.s_f_avnrt, 1, 0)
+        glayout.addWidget(self.pace_btn, 3, 0)
+
+        # layout.addWidget(self.canvas, 0)
+        # layout.addWidget(self.s_f_avnrt, 0)
+        # layout.addWidget(self.pace_btn, 1)
+        # layout.addWidget(self.beat_frq, 2)
+
+        self.s_f_avnrt.clicked.connect(self.slow_fast)
+        self.pace_btn.clicked.connect(self.beat)
+        self.start.clicked.connect(self.start_beat)
+
+        hwg = QWidget()
+        vwg = QWidget()
+
+        hwg.setLayout(hlayout)
+        vwg.setLayout(glayout)
+
+        wlayout.addWidget(hwg)
+        wlayout.addWidget(vwg)
+
+        self.setLayout(wlayout)
+
+        # self.setLayout(hlayout)
+        # self.setLayout(vlayout)
+        # wl.addLayout(hlayout)
+        # wl.addLayout(vlayout)
 
         self.reset()
 
@@ -61,28 +100,47 @@ class Grid(QtWidgets.QDialog):
 
         plt.matshow(self.grid, fignum=0)
 
+        plt.axis("off")
+
         print(222)
 
         self.canvas.draw()
 
-    def update(self, event):
-        self.make_pace()
-        delay = 0
+    def freq_change(self, event):
+        self.freq = self.set_freq.value() * 10
 
+    def start_beat(self, event):
+        self.update(True)
+
+    def slow_fast(self, event):
+        self.freq = 25
+        self.update(False)
+
+    def update(self, reset):
+        self.make_pace()
+
+        delay = 0
         for t in range(10000):
             delay += 1
-            if delay == 25:
+            if delay == self.freq:
                 self.make_pace()
+                if reset:
+                    delay = 0
             self.spread(7, 3)
             plt.clf()
             plt.matshow(self.grid, fignum=0)
+            plt.axis("off")
             self.canvas.draw()
-            plt.pause(0.01)
+            QApplication.processEvents()
+            time.sleep(0.0001)
 
     def opposite_pace(self, event):
         for y in range(45, 55):
             self.grid[94, y] = self.activate
         self.update_cell()
+
+    def beat(self, event):
+        self.make_pace()
 
     def make_pace(self):
         for y in range(45, 55):
