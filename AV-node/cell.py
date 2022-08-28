@@ -12,7 +12,6 @@ class Cell:
         elif self.state == 76:
             self.state = 100
         elif self.state != 100:
-            print(self.wait)
             if self.wait == 2:
                 self.state += 4
                 self.wait = 0

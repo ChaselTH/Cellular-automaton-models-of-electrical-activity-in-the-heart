@@ -4,6 +4,7 @@ import time
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib
+import matplotlib.animation as ma
 from matplotlib.widgets import Button
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from PyQt5 import QtCore, QtWidgets, QtGui
@@ -18,7 +19,16 @@ class Grid(QtWidgets.QDialog):
 
     def __init__(self):
         super().__init__()
-        self.resize(800, 600)
+        self.resize(1200, 800)
+
+        self.x_record = []
+        self.y_record = []
+        self.y_converse = []
+        self.x_record.append(0)
+        self.y_record.append(0)
+        self.y_converse.append(0)
+
+        self.check_point = 0
 
         self.cell_box = []
         self.coordinate_box = []
@@ -100,11 +110,16 @@ class Grid(QtWidgets.QDialog):
 
         self.update_cell()
 
-        plt.matshow(self.grid, fignum=0)
+        grid = plt.GridSpec(6, 4, wspace=0.5, hspace=0.5)
 
+        plt.subplot(grid[0:4, 0:4])
+        plt.matshow(self.grid, fignum=0)
         plt.axis("off")
 
-        print(222)
+        plt.subplot(grid[4:6, 0:4])
+        plt.xlim(0, 100)
+        plt.ylim(-200, 3200)
+        plt.grid(linestyle=':')
 
         self.canvas.draw()
 
@@ -116,18 +131,21 @@ class Grid(QtWidgets.QDialog):
         self.beat_frq.setText("Frequency LV: " + str(self.set_freq.value()))
 
     def start_beat(self, event):
+        self.check_point = self.x_record[-1]
         self.freq = int(self.set_freq.value()/100 * 30 + 20)
-        self.update(True, False)
+        self.update(True)
 
     def slow_fast(self, event):
+        self.check_point = self.x_record[-1]
         self.freq = 25
-        self.update(False, False)
+        self.update(False)
 
     def fast_slow(self, event):
+        self.check_point = self.x_record[-1]
         self.freq = 40
         self.update(False, True)
 
-    def update(self, reset, counter):
+    def update(self, reset, counter=False):
         self.make_pace()
 
         delay = 0
@@ -141,12 +159,33 @@ class Grid(QtWidgets.QDialog):
                 if reset:
                     delay = 0
             self.spread(7, 3)
+
             plt.clf()
+            grid = plt.GridSpec(6, 4, wspace=0.5, hspace=0.5)
+            plt.subplot(grid[0:4, 0:4])
             plt.matshow(self.grid, fignum=0)
             plt.axis("off")
+
+
+            self.x_record.append(t+self.check_point)
+            print(self.x_record[-1])
+            self.y_record.append(self.in_impulse_update())
+
+            plt.subplot(grid[4:6, 0:4])
+            plt.xlim(0, 100)
+            plt.ylim(-200, 3200)
+            if self.x_record[-1] > 70:
+                plt.xlim(self.x_record[-1] - 70, self.x_record[-1] + 70)
+            plt.plot(self.x_record, self.y_record)
+            plt.grid(linestyle=':')
+
             self.canvas.draw()
             QApplication.processEvents()
             time.sleep(0.0001)
+
+    def in_impulse_update(self):
+        state_area = self.grid[5:10, 45:55]
+        return 5000 - state_area.sum()
 
     def opposite_pace(self, event):
         for y in range(45, 55):
@@ -188,9 +227,7 @@ class Grid(QtWidgets.QDialog):
 
     def calculate_state(self, x, y):
         state_area = self.grid[x - 4: x + 5, y - 4: y + 5] % 2
-        state = state_area.sum()
-
-        return state
+        return state_area.sum()
 
     def spread(self, slow, fast):
         for cell in self.cell_box:
@@ -208,4 +245,3 @@ class Grid(QtWidgets.QDialog):
                 else:
                     cell.next_fast()
         self.update_grid()
-        # self.update_cell()
