@@ -166,17 +166,18 @@ class Grid(QtWidgets.QDialog):
             plt.matshow(self.grid, fignum=0)
             plt.axis("off")
 
-
             self.x_record.append(t+self.check_point)
             print(self.x_record[-1])
             self.y_record.append(self.in_impulse_update())
+            self.y_converse.append(self.out_impulse_update())
 
             plt.subplot(grid[4:6, 0:4])
             plt.xlim(0, 100)
             plt.ylim(-200, 3200)
             if self.x_record[-1] > 70:
                 plt.xlim(self.x_record[-1] - 70, self.x_record[-1] + 70)
-            plt.plot(self.x_record, self.y_record)
+            plt.plot(self.x_record, self.y_record, label='in')
+            plt.plot(self.x_record, self.y_converse, label="out")
             plt.grid(linestyle=':')
 
             self.canvas.draw()
@@ -185,6 +186,10 @@ class Grid(QtWidgets.QDialog):
 
     def in_impulse_update(self):
         state_area = self.grid[5:10, 45:55]
+        return 5000 - state_area.sum()
+
+    def out_impulse_update(self):
+        state_area = self.grid[90:95, 45:55]
         return 5000 - state_area.sum()
 
     def opposite_pace(self, event):
