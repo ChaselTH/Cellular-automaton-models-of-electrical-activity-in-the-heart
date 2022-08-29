@@ -46,7 +46,6 @@ class Grid(QtWidgets.QDialog):
         self.counter_pace_btn = QtWidgets.QPushButton("Counter Impulse")
 
         self.set_freq = QSlider()
-        # self.set_freq.setSingleStep(2)
         self.set_freq.setRange(1, 100)
         self.set_freq.setValue(50)
         self.set_freq.valueChanged.connect(self.freq_change)
@@ -66,8 +65,8 @@ class Grid(QtWidgets.QDialog):
         glayout.addWidget(self.beat_frq, 1, 0)
         glayout.addWidget(self.set_freq, 1, 1)
         glayout.addWidget(self.s_f_avnrt, 2, 0)
-        glayout.addWidget(self.f_s_avnrt, 2, 1)
-        glayout.addWidget(self.pace_btn, 3, 0)
+        glayout.addWidget(self.f_s_avnrt, 3, 0)
+        glayout.addWidget(self.pace_btn, 2, 1)
         glayout.addWidget(self.counter_pace_btn, 3, 1)
 
         self.s_f_avnrt.clicked.connect(self.slow_fast)
@@ -113,7 +112,8 @@ class Grid(QtWidgets.QDialog):
         grid = plt.GridSpec(6, 4, wspace=0.5, hspace=0.5)
 
         plt.subplot(grid[0:4, 0:4])
-        plt.matshow(self.grid, fignum=0)
+        plt.matshow(self.grid, fignum=0, cmap=matplotlib.cm.hot)
+        plt.colorbar()
         plt.axis("off")
 
         plt.subplot(grid[4:6, 0:4])
@@ -132,7 +132,7 @@ class Grid(QtWidgets.QDialog):
 
     def start_beat(self, event):
         self.check_point = self.x_record[-1]
-        self.freq = int(self.set_freq.value()/100 * 30 + 20)
+        self.freq = int(self.set_freq.value()/100 * 40 + 30)
         self.update(True)
 
     def slow_fast(self, event):
@@ -163,7 +163,8 @@ class Grid(QtWidgets.QDialog):
             plt.clf()
             grid = plt.GridSpec(6, 4, wspace=0.5, hspace=0.5)
             plt.subplot(grid[0:4, 0:4])
-            plt.matshow(self.grid, fignum=0)
+            plt.matshow(self.grid, fignum=0, cmap=matplotlib.cm.hot)
+            plt.colorbar()
             plt.axis("off")
 
             self.x_record.append(t+self.check_point)
@@ -176,13 +177,14 @@ class Grid(QtWidgets.QDialog):
             plt.ylim(-200, 3200)
             if self.x_record[-1] > 70:
                 plt.xlim(self.x_record[-1] - 70, self.x_record[-1] + 70)
-            plt.plot(self.x_record, self.y_record, label='in')
-            plt.plot(self.x_record, self.y_converse, label="out")
+            plt.plot(self.x_record, self.y_record, label='Input')
+            plt.plot(self.x_record, self.y_converse, label="Output")
             plt.grid(linestyle=':')
+            plt.legend()
 
             self.canvas.draw()
             QApplication.processEvents()
-            time.sleep(0.0001)
+            time.sleep(0)
 
     def in_impulse_update(self):
         state_area = self.grid[5:10, 45:55]
