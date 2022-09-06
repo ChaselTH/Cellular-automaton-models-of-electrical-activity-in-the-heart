@@ -127,12 +127,12 @@ class Grid(QtWidgets.QDialog):
         self.freq = 100000000
 
     def freq_change(self, event):
-        self.freq = int(self.set_freq.value()/100 * 30 + 20)
+        self.freq = int(self.set_freq.value()/100 * 40 + 20)
         self.beat_frq.setText("Frequency LV: " + str(self.set_freq.value()))
 
     def start_beat(self, event):
         self.check_point = self.x_record[-1]
-        self.freq = int(self.set_freq.value()/100 * 40 + 30)
+        self.freq = int(self.set_freq.value()/100 * 40 + 20)
         self.update(True)
 
     def slow_fast(self, event):
@@ -168,7 +168,6 @@ class Grid(QtWidgets.QDialog):
             plt.axis("off")
 
             self.x_record.append(t+self.check_point)
-            print(self.x_record[-1])
             self.y_record.append(self.in_impulse_update())
             self.y_converse.append(self.out_impulse_update())
 
