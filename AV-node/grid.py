@@ -1,14 +1,9 @@
-import random
 import time
-
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib
-import matplotlib.animation as ma
-from matplotlib.widgets import Button
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
-from PyQt5 import QtCore, QtWidgets, QtGui
-from PyQt5.QtCore import Qt
+from PyQt5 import QtWidgets
 from PyQt5.QtWidgets import *
 from cell import Cell
 
@@ -214,14 +209,6 @@ class Grid(QtWidgets.QDialog):
             self.grid[94, y] = self.activate
         self.update_cell()
 
-    def is_cool(self):
-        cool = True
-        for cell in self.cell_box:
-            if cell.state != 100:
-                cool = False
-                break
-        return cool
-
     def update_cell(self):
         self.cell_box.clear()
         for c in self.coordinate_box:
@@ -236,9 +223,10 @@ class Grid(QtWidgets.QDialog):
         return state_area.sum()
 
     def spread(self, slow, fast):
-        for cell in self.cell_box:
-            if cell.state > 76:
-                state = self.calculate_state(cell.x, cell.y)
+        prev_cell_box = self.cell_box
+        for cell, prev_cell in zip(self.cell_box, prev_cell_box):
+            if prev_cell.state > 76:
+                state = self.calculate_state(prev_cell.x, prev_cell.y)
                 if cell.y < 50:
                     if state >= slow:
                         cell.state = self.activate

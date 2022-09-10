@@ -3,7 +3,6 @@ class Cell:
         self.x = x
         self.y = y
         self.state = state
-        self.is_changed = False
         self.wait = 0
 
     def next_fast(self):
@@ -29,3 +28,5 @@ class Cell:
             self.wait = 0
         else:
             self.wait += 1
+
+
