@@ -20,7 +20,7 @@ login_button = driver.find_element(by='xpath', value="//p[@class='logbtn']/a[@cl
 login_button.click()
 
 # 等待页面加载完成
-time.sleep(5)
+time.sleep(1)
 
 # 访问二叉树页面
 driver.get("https://www.atomy.com/tw/Home/MyAtomy/GroupTree")
@@ -32,7 +32,7 @@ alert = driver.switch_to.alert
 alert.accept()
 
 # 等待页面加载完成
-time.sleep(5)
+time.sleep(1)
 
 # 获取所有成员信息
 members = []
