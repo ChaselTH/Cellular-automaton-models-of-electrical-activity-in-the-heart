@@ -36,15 +36,16 @@ time.sleep(1)
 
 # 获取所有成员信息
 members = []
-member_rows = driver.find_elements(by='xpath', value="//div[@class='table']/div[@class='table-row']")
+member_rows = driver.find_elements(by='xpath', value="//table[contains(@id,'t')]")
 for member_row in member_rows:
     member_info = member_row.text.split('\n')
     members.append(member_info)
 
+
 # 将成员信息写入 CSV 文件
 with open('members.csv', mode='w', encoding='utf-8', newline='') as f:
     writer = csv.writer(f)
-    writer.writerow(['姓名', 'ID', '直推人数', '开通日期'])
+    writer.writerow(['ID', '姓名', '?', '开通日期'])
     for member in members:
         writer.writerow(member)
 
