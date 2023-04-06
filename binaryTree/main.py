@@ -36,17 +36,21 @@ time.sleep(1)
 
 # 获取所有成员信息
 members = []
-member_rows = driver.find_elements(by='xpath', value="//table[contains(@id,'t')]")
+member_rows = driver.find_elements(by='xpath', value="//table[contains(@id, 't') and translate(substring-after(@id, 't'), '0123456789', '') = '']")
 for member_row in member_rows:
     member_info = member_row.text.split('\n')
     members.append(member_info)
 
+tree = []
+for member in members:
+    indentation = ' '
+    tree.append([indentation + member[1], member[0]])
 
 # 将成员信息写入 CSV 文件
 with open('members.csv', mode='w', encoding='utf-8', newline='') as f:
     writer = csv.writer(f)
-    writer.writerow(['ID', '姓名', '?', '开通日期'])
-    for member in members:
+    writer.writerow(['ID', '姓名'])
+    for member in tree:
         writer.writerow(member)
 
 # 关闭浏览器
