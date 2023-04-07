@@ -3,7 +3,6 @@ from selenium import webdriver
 from selenium.webdriver import ActionChains
 import time
 
-
 # 创建 Chrome 浏览器对象
 options = webdriver.ChromeOptions()
 options.add_argument('--disable-gpu')
@@ -36,23 +35,53 @@ alert.accept()
 # 等待页面加载完成
 time.sleep(1)
 
-search_id = "16840189"
-notFound = True
-# 获取所有成员信息
-lines = driver.find_elements(by='xpath', value="//img[contains(@src, 'dot_03.gif')]")
-member_rows = driver.find_elements(by='xpath', value="//table[contains(@id, 't') and translate(substring-after(@id, 't'), '0123456789', '') = '']")
-for member_row in member_rows:
-    member_info = member_row.text.split('\n')
-    member_id = re.findall(r'\d+', member_info[0])[0]
-    print(member_info)
-    if member_id == search_id:
-        action_chains = ActionChains(driver)
-        action_chains.double_click(member_row).perform()
-        notFound = False
-        break
 
-#if notFound:
+def is_endpoint(driver, member_row):
+    # 获取当前成员节点的位置信息和大小信息
+    member_location = member_row.location
+    member_size = member_row.size
 
+    # 计算出当前成员节点正下方的点的位置信息
+    down_point = {'x': member_location['x'] + member_size['width'] / 2, 'y': member_location['y'] + member_size['height']}
+
+    print(down_point)
+
+    endpoint_down = driver.find_elements(by='xpath',
+                                         value=f"//img[@src='https://static-global.atomy.com/tw/Resource/Home/Mall/img/dot_03.gif' and @style='position:absolute; width:3px; height:59px; @top>={down_point['y'] - 20} and @top<={down_point['y'] + 20} and @left>={down_point['x'] - 20} and @left<={down_point['x'] + 20}']")
+
+    if len(endpoint_down) == 0:
+        return True
+    else:
+        return False
+
+
+def find_member(driver, search_id):
+    # 先查找当前页面是否存在成员
+    member_rows = driver.find_elements(by='xpath',
+                                       value="//table[contains(@id, 't') and translate(substring-after(@id, 't'), '0123456789', '') = '']")
+    for member_row in member_rows:
+        member_info = member_row.text.split('\n')
+        member_id = re.findall(r'\d+', member_info[0])[0]
+        if member_id == search_id:
+            action_chains = ActionChains(driver)
+            action_chains.double_click(member_row).perform()
+            return True
+
+        time.sleep(1)
+        if is_endpoint(driver, member_row):
+            # 如果当前节点是端节点，则展开子节点
+            action_chains = ActionChains(driver)
+            action_chains.double_click(member_row).perform()
+            if find_member(driver, search_id):
+                return True
+
+    # 如果所有节点都已经遍历完成还没有找到成员，则返回False
+    return False
+
+
+# 使用示例
+search_id = "26601927"
+find_member(driver, search_id)
 
 
 time.sleep(1)
