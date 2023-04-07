@@ -1,6 +1,8 @@
+import re
 from selenium import webdriver
+from selenium.webdriver import ActionChains
 import time
-import csv
+
 
 # 创建 Chrome 浏览器对象
 options = webdriver.ChromeOptions()
@@ -34,24 +36,26 @@ alert.accept()
 # 等待页面加载完成
 time.sleep(1)
 
+search_id = "16840189"
+notFound = True
 # 获取所有成员信息
-members = []
+lines = driver.find_elements(by='xpath', value="//img[contains(@src, 'dot_03.gif')]")
 member_rows = driver.find_elements(by='xpath', value="//table[contains(@id, 't') and translate(substring-after(@id, 't'), '0123456789', '') = '']")
 for member_row in member_rows:
     member_info = member_row.text.split('\n')
-    members.append(member_info)
+    member_id = re.findall(r'\d+', member_info[0])[0]
+    print(member_info)
+    if member_id == search_id:
+        action_chains = ActionChains(driver)
+        action_chains.double_click(member_row).perform()
+        notFound = False
+        break
 
-tree = []
-for member in members:
-    indentation = ' '
-    tree.append([indentation + member[1], member[0]])
+#if notFound:
 
-# 将成员信息写入 CSV 文件
-with open('members.csv', mode='w', encoding='utf-8', newline='') as f:
-    writer = csv.writer(f)
-    writer.writerow(['ID', '姓名'])
-    for member in tree:
-        writer.writerow(member)
+
+
+time.sleep(1)
 
 # 关闭浏览器
-driver.quit()
+input("按 Enter 键退出...")
