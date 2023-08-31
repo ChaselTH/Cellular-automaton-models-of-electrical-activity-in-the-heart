@@ -1,9 +1,17 @@
 import re
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+
+
 from selenium import webdriver
 from selenium.webdriver import ActionChains
 import time
 
 # 创建 Chrome 浏览器对象
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.wait import WebDriverWait
+
 options = webdriver.ChromeOptions()
 options.add_argument('--disable-gpu')
 options.add_argument('--no-sandbox')
@@ -36,18 +44,19 @@ alert.accept()
 time.sleep(1)
 
 
+
 def is_endpoint(driver, member_row):
     # 获取当前成员节点的位置信息和大小信息
     member_location = member_row.location
     member_size = member_row.size
 
-    # 计算出当前成员节点正下方的点的位置信息
-    down_point = {'x': member_location['x'] + member_size['width'] / 2, 'y': member_location['y'] + member_size['height']}
+    down_point = {'x': round(member_location['x'] + member_size['width'] / 2), 'y': round(member_location['y'] + member_size['height'])}
 
     print(down_point)
 
-    endpoint_down = driver.find_elements(by='xpath',
-                                         value=f"//img[@src='https://static-global.atomy.com/tw/Resource/Home/Mall/img/dot_03.gif' and @style='position:absolute; width:3px; height:59px; @top>={down_point['y'] - 20} and @top<={down_point['y'] + 20} and @left>={down_point['x'] - 20} and @left<={down_point['x'] + 20}']")
+    # 等待页面加载完成后再执行查找
+    wait = WebDriverWait(driver, 20)
+    endpoint_down = wait.until(EC.presence_of_all_elements_located((By.XPATH, f"//img[@src='https://static-global.atomy.com/tw/Resource/Home/Mall/img/dot_03.gif' and @style='position:absolute; width:3px; height:59px; @top>={down_point['y'] - 20} and @top<={down_point['y'] + 20} and @left>={down_point['x'] - 20} and @left<={down_point['x'] + 20}']")))
 
     if len(endpoint_down) == 0:
         return True
